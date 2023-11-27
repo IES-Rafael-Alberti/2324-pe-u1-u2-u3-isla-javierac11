@@ -149,18 +149,21 @@ def generar_mapa() -> list:
     mapa[tesoro_x][tesoro_y] = CELDA_TESORO
 
     # Colocar pistas y trampas
-    ???
-            if mapa[i][j] != CELDA_TESORO:
-                # Decidir aleatoriamente si colocar una pista, una trampa o vacia.
-                opciones = [genera_pista((tesoro_x, tesoro_y), (i, j))]
+    for fila in range(DIMENSIONES):
+        for columna in range(DIMENSIONES):
+            
+            if mapa[fila][columna] != CELDA_TESORO:
+                        # Decidir aleatoriamente si colocar una pista, una trampa o vacia.
+                opciones = [genera_pista((tesoro_x, tesoro_y), (fila, columna))]
                 opciones += [CELDA_TRAMPA]
                 opciones += [CELDA_VACIA]
-                mapa[i][j] = random.choice(opciones)
+                mapa[fila][columna] = random.choice(opciones)
+            
 
     return mapa
 
 
-def genera_pista():
+def genera_pista(posicion_tesoro, posicion):
     """
     Genera una pista para el mapa, en función de donde se encuentre el tesoro.
     Decidirá si la pista es sobre la fila o la columna basada en la aleatoriedad. Ademas tiene en cuenta que
@@ -261,9 +264,9 @@ def procesar_movimiento(posicion: tuple, mapa: list) -> int:
 
 def simbolo_celda(celda):
     """Retorna el símbolo a pintar en la celda"""
-    if celda != CELDA_VACIA
+    if celda != CELDA_VACIA:
         return DESCONOCIDO
-    else
+    else:
         return CELDA_VACIA 
 
 
@@ -279,7 +282,7 @@ def imprimir_mapa(mapa: list):
     :param mapa: El mapa a imprimir.
     """
     for fila in mapa:
-        print fila
+        print(fila)
 
 
 def muestra_resultado_del_movimiento(resultado: int, nueva_posicion: tuple, mapa: list):
