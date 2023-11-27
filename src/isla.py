@@ -110,7 +110,15 @@ COLUMNAS = 1
 
 # Código oculto del programador para realizar alguna acción que el usuario no sabe que existe. Si encuentras para qué se utiliza igual te sirve en tu aventura...
 CODIGO_OCULTO_PROGRAMADOR = "s"
+CONTRASENIA_PROGRAMADOR = "break"
 
+def pedir_contrasenia() -> str:
+    """
+    Pide una contraseña y la devuelve
+    :return: la contraseña
+    """
+    contrasenia = input("Introduce la contraseña de programador: ")
+    return contrasenia
 
 def inicializar_juego() -> tuple:
     """
@@ -173,7 +181,7 @@ def generar_mapa() -> list:
     return mapa
 
 
-def genera_pista(posicion_tesoro, posicion):
+def genera_pista(posicion_tesoro: tuple, posicion: tuple):
     """
     Genera una pista para el mapa, en función de donde se encuentre el tesoro.
     Decidirá si la pista es sobre la fila o la columna basada en la aleatoriedad. Ademas tiene en cuenta que
@@ -228,7 +236,9 @@ def pedir_movimiento(mapa: list) -> str:
         if entrada in MOVIMIENTOS:
             entrada_correcta = True
         elif entrada == CODIGO_OCULTO_PROGRAMADOR:
-            imprimir_mapa(mapa)
+            contrasenia = pedir_contrasenia()
+            if contrasenia == CONTRASENIA_PROGRAMADOR:
+                imprimir_mapa(mapa)
 
         if not entrada_correcta:
             entrada = input("Ingresa tu movimiento (formato: 'u:arriba', 'd:abajo', 'l:izquierda', 'r:derecha', q:salir): ")
