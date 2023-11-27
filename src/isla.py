@@ -74,6 +74,7 @@ Tu posición es (3, 3)  #aunque internamente esté en la posición (2, 2)
 """
 
 import random
+import os
 
 DIMENSIONES = 5
 
@@ -81,6 +82,7 @@ DIMENSIONES = 5
 CELDA_TESORO = "X"
 CELDA_TRAMPA = "!"
 CELDA_VACIA = " "
+CELDA_JUGADOR = "*"
 
 # Constantes para las pistas de los movimientos
 ARRIBA = "^"
@@ -122,6 +124,14 @@ def inicializar_juego() -> tuple:
 
     return mapa, posicion_jugador
 
+def borrar_pantalla():
+    """Comprueba si el SO es Linux o Windows y te borra la pantalla
+    """
+    if os.name == "posix":
+        os.system ("clear")
+    elif os.name == "ce" or os.name == "nt" or os.name == "dos":
+        os.system("cls")
+
 
 def posicion_inicial_del_jugador() -> tuple:
     """ Devuelve la posición inicial del jugador. Actualmente es la posición central del mapa.
@@ -152,7 +162,7 @@ def generar_mapa() -> list:
     for fila in range(DIMENSIONES):
         for columna in range(DIMENSIONES):
             
-            if mapa[fila][columna] != CELDA_TESORO:
+            if mapa[fila][columna] != CELDA_TESORO and fila != 2 and columna != 2:
                         # Decidir aleatoriamente si colocar una pista, una trampa o vacia.
                 opciones = [genera_pista((tesoro_x, tesoro_y), (fila, columna))]
                 opciones += [CELDA_TRAMPA]
@@ -213,7 +223,7 @@ def pedir_movimiento(mapa: list) -> str:
     """
     entrada_correcta = False
 
-    entrada = int(input("Ingresa tu movimiento (formato: 'u:arriba', 'd:abajo', 'l:izquierda', 'r:derecha', q:salir): "))
+    entrada = input("Ingresa tu movimiento (formato: 'u:arriba', 'd:abajo', 'l:izquierda', 'r:derecha', q:salir): ")
     while not entrada_correcta:
         if entrada in MOVIMIENTOS:
             entrada_correcta = True
@@ -221,8 +231,7 @@ def pedir_movimiento(mapa: list) -> str:
             imprimir_mapa(mapa)
 
         if not entrada_correcta:
-            entrada = int(input(
-                "Ingresa tu movimiento (formato: 'u:arriba', 'd:abajo', 'l:izquierda', 'r:derecha', q:salir): "))
+            entrada = input("Ingresa tu movimiento (formato: 'u:arriba', 'd:abajo', 'l:izquierda', 'r:derecha', q:salir): ")
 
     return entrada
 
@@ -236,7 +245,7 @@ def obtener_nueva_posicion(posicion_jugador: tuple, movimiento: str) -> tuple:
     :return: La nueva posición del jugador.
     """
 
-    direccion = MOVIMIENTOS(movimiento)
+    direccion = MOVIMIENTOS[movimiento]
     nueva_posicion = (posicion_jugador[FILAS] + direccion[FILAS], posicion_jugador[COLUMNAS] + direccion[COLUMNAS])
     return nueva_posicion
 
@@ -270,10 +279,25 @@ def simbolo_celda(celda):
         return CELDA_VACIA 
 
 
-def imprimir_mapa_oculto(mapa: list):
+def imprimir_mapa_oculto(mapa: list, posicion_jugador):
     """Imprime el mapa sin revelar el tesoro ni las trampas."""
-    for fila in mapa:
-        print(" ".join([simbolo_celda(celda) for celda in fila]))
+    print("    ", end="")
+    for fila in range(0, DIMENSIONES):
+        print(fila+1, end=" ")   
+    print("\n   -----------") 
+    columna = 1               
+    for posicion_fila in range(DIMENSIONES):
+        print(f"{columna} |", end =" ")
+        for posicion_celda in range(DIMENSIONES):
+            if (posicion_fila, posicion_celda) == posicion_jugador:
+                print(CELDA_JUGADOR, end=" ")  
+            else:  
+                celda = mapa[posicion_fila][posicion_celda]
+                print(simbolo_celda(celda), end=" ")
+        print("|")
+        columna += 1
+    print("   -----------")
+        #print(" ".join([simbolo_celda(celda) for celda in fila]))
 
 
 def imprimir_mapa(mapa: list):
@@ -307,8 +331,8 @@ def muestra_resultado_del_movimiento(resultado: int, nueva_posicion: tuple, mapa
 def muestra_estado_mapa(mapa, posicion_jugador):
     """Muestra el mapa y la posición del jugador."""
 
-    imprimir_mapa_oculto(mapa)
-    print(f"Tu posición es {posicion_jugador}")
+    imprimir_mapa_oculto(mapa, posicion_jugador)
+    print(f"Tu posición es {posicion_jugador[0]+1}, {posicion_jugador[1]+1}")
 
 
 def jugar():
@@ -321,16 +345,18 @@ def jugar():
     movimiento = pedir_movimiento(mapa)
     resultado_movimiento = None
     # Loop principal del juego. El juego termina cuando el jugador realizar movimiento SALIR.
-    while movimiento != SALIR and resultado_movimiento == TESORO_ENCONTRADO:
-
+    while movimiento != SALIR and resultado_movimiento != TESORO_ENCONTRADO:
+        
         # Obtener la nueva posición del jugador y procesar el movimiento
-        nueva_posicion = obtener_nueva_posicion(posicion_jugador)
+        nueva_posicion = obtener_nueva_posicion(posicion_jugador, movimiento)
         resultado_movimiento = procesar_movimiento(nueva_posicion, mapa)
-
+        
         muestra_resultado_del_movimiento(resultado_movimiento, nueva_posicion, mapa)
 
         if resultado_movimiento != TESORO_ENCONTRADO:
+            borrar_pantalla()
             # Actualizar la posición del jugador si el movimiento es válido
+            muestra_resultado_del_movimiento(resultado_movimiento, nueva_posicion, mapa)
             if resultado_movimiento not in MOVIMIENTOS_NO_PERMITIDO:
                 posicion_jugador = nueva_posicion
 

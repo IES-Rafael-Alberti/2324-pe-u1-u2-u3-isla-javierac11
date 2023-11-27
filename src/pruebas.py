@@ -1,3 +1,6 @@
-from isla import generar_mapa
+import isla
 
-print(generar_mapa())
+mapa = isla.generar_mapa()
+
+
+isla.imprimir_mapa_oculto(mapa)
